@@ -1,0 +1,87 @@
+body {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  margin: 40px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+label,
+select,
+input[type="radio"],
+input[type="text"],
+button {
+  font-size: 1rem;
+}
+
+select,
+input[type="text"] {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+select:focus,
+input[type="text"]:focus {
+  border-color: #0077ff;
+}
+
+input[type="radio"] {
+  margin-right: 6px;
+  accent-color: #0077ff;
+}
+
+.mode-group,
+.tone-group {
+  margin: 10px 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0077ff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #005fcc;
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 300px;
+  margin-right: 10px;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.container {
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 720px;
+  margin: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.chat-container {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}

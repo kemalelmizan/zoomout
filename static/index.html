@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zoomout Chatbot</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui@latest/dist/shadcn-ui.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>Zoomout Chatbot</h1>
+
+  <label for="model">Model:</label>
+  <select id="model"></select>
+
+  <span id="mode-label">Mode: <span id="current-mode">🧠 Cognition</span> <button id="change-mode">[Change]</button></span>
+  <div id="mode-selector" style="display:none;">
+    <label><input type="radio" name="mode-radio" value="cognition" checked> 🧠 Cognition</label>
+    <label><input type="radio" name="mode-radio" value="perspective"> 🔍 Perspective</label>
+    <label><input type="radio" name="mode-radio" value="action"> 🛠 Action</label>
+  </div>
+
+  <label for="tone">Tone:</label>
+  <select id="tone">
+    <option value="cool">❄️ Cool</option>
+    <option value="neutral" selected>🧊 Neutral</option>
+    <option value="warm">🔥 Warm</option>
+  </select>
+
+  <div id="chat-box" style="margin: 1em 0;"></div>
+
+  <input type="text" id="message" placeholder="Type your message..." size="60">
+  <button onclick="sendMessage()">Send</button>
+  <span id="loading" style="display:none;">Loading...</span>
+  <span id="error" style="color:red;"></span>
+
+  <script>
+    let currentMode = 'cognition';
+    let modeIcons = { cognition: '🧠 Cognition', perspective: '🔍 Perspective', action: '🛠 Action' };
+
+    async function loadModels() {
+      const res = await fetch('/models');
+      const data = await res.json();
+      const modelSelect = document.getElementById('model');
+      let defaultSet = false;
+      data.models.forEach(m => {
+        if (/embed|embedding/i.test(m)) return; // skip embedding models
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.innerText = m;
+        if (!defaultSet && m.toLowerCase().includes('qwen3')) {
+          opt.selected = true;
+          defaultSet = true;
+        }
+        modelSelect.appendChild(opt);
+      });
+    }
+
+    async function loadHistory() {
+      const res = await fetch('/history');
+      const data = await res.json();
+      const chatBox = document.getElementById('chat-box');
+      chatBox.innerHTML = '';
+      data.history.forEach(entry => {
+        chatBox.innerHTML += `<p><strong>You:</strong> ${entry.user} <em>(${modeIcons[entry.mode] || entry.mode}, ${entry.tone || 'neutral'})</em></p>`;
+        chatBox.innerHTML += `<p><strong>Bot:</strong> ${entry.bot}</p>`;
+      });
+    }
+
+    async function sendMessage() {
+      const model = document.getElementById('model').value;
+      const message = document.getElementById('message').value;
+      const tone = document.getElementById('tone').value;
+      const chatBox = document.getElementById('chat-box');
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      error.innerText = '';
+      loading.style.display = 'inline';
+      chatBox.innerHTML += `<p><strong>You:</strong> ${message} <em>(${modeIcons[currentMode]}, ${tone})</em></p>`;
+      document.getElementById('message').value = '';
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, mode: currentMode, message, tone })
+        });
+        const data = await res.json();
+        chatBox.innerHTML += `<p><strong>Bot:</strong> ${data.response}</p>`;
+        if (data.metadata) {
+          chatBox.innerHTML += `<div style='font-size:0.9em;color:#666;margin-bottom:1em;'>`
+            + `Tokens: <b>${data.metadata.token_count}</b> | `
+            + `Duration: <b>${data.metadata.duration.toFixed(2)}s</b> | `
+            + `Tokens/sec: <b>${data.metadata.tokens_per_second.toFixed(2)}</b>`
+            + `</div>`;
+        }
+      } catch (e) {
+        error.innerText = 'Error sending message.';
+      }
+      loading.style.display = 'none';
+    }
+
+    document.getElementById('change-mode').onclick = function() {
+      document.getElementById('mode-selector').style.display = 'block';
+    };
+    document.querySelectorAll('input[name="mode-radio"]').forEach(radio => {
+      radio.onchange = function() {
+        if (this.checked) {
+          currentMode = this.value;
+          document.getElementById('current-mode').innerText = modeIcons[currentMode];
+          document.getElementById('mode-selector').style.display = 'none';
+        }
+      };
+    });
+    document.getElementById('message').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    loadModels();
+    loadHistory();
+  </script>
+</body>
+</html>
