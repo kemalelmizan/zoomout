@@ -33,19 +33,13 @@
   <label for="model">Model:</label>
   <select id="model"></select>
 
-  <span id="mode-label">Mode: <span id="current-mode">🟢 Normal</span> <button id="change-mode">[Change]</button></span>
-
-  <div id="mode-modal">
-    <div class="modal-content">
-      <h3>Select Mode</h3>
-      <button class="mode-btn" data-mode="normal">🟢 Normal</button>
-      <button class="mode-btn" data-mode="cognition">🧠 Cognition</button>
-      <button class="mode-btn" data-mode="perspective">🔍 Perspective</button>
-      <button class="mode-btn" data-mode="action">🛠 Action</button>
-      <br>
-      <button id="close-modal">Cancel</button>
-    </div>
-  </div>
+  <label for="mode-select">Mode:</label>
+  <select id="mode-select">
+    <option value="normal">🟢 Normal</option>
+    <option value="cognition">🧠 Cognition</option>
+    <option value="perspective">🔍 Perspective</option>
+    <option value="action">🛠 Action</option>
+  </select>
 
   <label for="tone">Tone:</label>
   <select id="tone">
@@ -131,20 +125,13 @@
       loading.style.display = 'none';
     }
 
-    // Modal logic
-    document.getElementById('change-mode').onclick = function() {
-      document.getElementById('mode-modal').style.display = 'flex';
+    // Mode select logic
+    const modeSelect = document.getElementById('mode-select');
+    modeSelect.value = currentMode;
+    modeSelect.onchange = function() {
+      currentMode = this.value;
     };
-    document.getElementById('close-modal').onclick = function() {
-      document.getElementById('mode-modal').style.display = 'none';
-    };
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.onclick = function() {
-        currentMode = this.getAttribute('data-mode');
-        document.getElementById('current-mode').innerText = modeIcons[currentMode];
-        document.getElementById('mode-modal').style.display = 'none';
-      };
-    });
+
     document.getElementById('message').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         sendMessage();
