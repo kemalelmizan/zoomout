@@ -4,6 +4,28 @@
   <title>Zoomout Chatbot</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shadcn/ui@latest/dist/shadcn-ui.min.css">
   <link rel="stylesheet" href="/static/style.css">
+  <style>
+    #mode-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.3);
+      justify-content: center;
+      align-items: center;
+    }
+    #mode-modal .modal-content {
+      background: #fff;
+      padding: 2em 2em 1em 2em;
+      border-radius: 8px;
+      min-width: 250px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #mode-modal button {
+      margin: 0.5em;
+    }
+  </style>
 </head>
 <body>
   <h1>Zoomout Chatbot</h1>
@@ -11,11 +33,18 @@
   <label for="model">Model:</label>
   <select id="model"></select>
 
-  <span id="mode-label">Mode: <span id="current-mode">🧠 Cognition</span> <button id="change-mode">[Change]</button></span>
-  <div id="mode-selector" style="display:none;">
-    <label><input type="radio" name="mode-radio" value="cognition" checked> 🧠 Cognition</label>
-    <label><input type="radio" name="mode-radio" value="perspective"> 🔍 Perspective</label>
-    <label><input type="radio" name="mode-radio" value="action"> 🛠 Action</label>
+  <span id="mode-label">Mode: <span id="current-mode">🟢 Normal</span> <button id="change-mode">[Change]</button></span>
+
+  <div id="mode-modal">
+    <div class="modal-content">
+      <h3>Select Mode</h3>
+      <button class="mode-btn" data-mode="normal">🟢 Normal</button>
+      <button class="mode-btn" data-mode="cognition">🧠 Cognition</button>
+      <button class="mode-btn" data-mode="perspective">🔍 Perspective</button>
+      <button class="mode-btn" data-mode="action">🛠 Action</button>
+      <br>
+      <button id="close-modal">Cancel</button>
+    </div>
   </div>
 
   <label for="tone">Tone:</label>
@@ -33,8 +62,13 @@
   <span id="error" style="color:red;"></span>
 
   <script>
-    let currentMode = 'cognition';
-    let modeIcons = { cognition: '🧠 Cognition', perspective: '🔍 Perspective', action: '🛠 Action' };
+    let currentMode = 'normal';
+    let modeIcons = {
+      normal: '🟢 Normal',
+      cognition: '🧠 Cognition',
+      perspective: '🔍 Perspective',
+      action: '🛠 Action'
+    };
 
     async function loadModels() {
       const res = await fetch('/models');
@@ -97,16 +131,18 @@
       loading.style.display = 'none';
     }
 
+    // Modal logic
     document.getElementById('change-mode').onclick = function() {
-      document.getElementById('mode-selector').style.display = 'block';
+      document.getElementById('mode-modal').style.display = 'flex';
     };
-    document.querySelectorAll('input[name="mode-radio"]').forEach(radio => {
-      radio.onchange = function() {
-        if (this.checked) {
-          currentMode = this.value;
-          document.getElementById('current-mode').innerText = modeIcons[currentMode];
-          document.getElementById('mode-selector').style.display = 'none';
-        }
+    document.getElementById('close-modal').onclick = function() {
+      document.getElementById('mode-modal').style.display = 'none';
+    };
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.onclick = function() {
+        currentMode = this.getAttribute('data-mode');
+        document.getElementById('current-mode').innerText = modeIcons[currentMode];
+        document.getElementById('mode-modal').style.display = 'none';
       };
     });
     document.getElementById('message').addEventListener('keydown', function(e) {

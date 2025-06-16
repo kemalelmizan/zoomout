@@ -21,7 +21,7 @@ git clone <this-repo-url>
 cd zoomout
 ```
 
-### 3. Development (Hot Reload)
+### 3. Development
 Run both backend and frontend with one command:
 ```sh
 uv venv

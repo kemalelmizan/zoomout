@@ -51,7 +51,7 @@ def chat_with_model(model: str, prompt: str) -> str:
 # Request schema
 class ChatRequest(BaseModel):
     model: str
-    mode: str  # cognition, perspective, action
+    mode: str  # normal, cognition, perspective, action
     message: str
     tone: Optional[str] = "neutral"  # cool, neutral, warm
 
@@ -81,6 +81,7 @@ async def chat(req: ChatRequest, session_id: Optional[str] = Cookie(None)):
         "warm": "[Warm and friendly tone] "
     }.get(req.tone or "neutral", "")
     system_prefix = {
+        "normal": "",
         "cognition": "Analyze this deeply: ",
         "perspective": "Reframe this differently: ",
         "action": "Suggest actionable next steps for this: "
